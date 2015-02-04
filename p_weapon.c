@@ -9,7 +9,7 @@ static byte		is_silenced;
 
 
 void weapon_grenade_fire (edict_t *ent, qboolean held);
-
+void MultiGrenade(edict_t *ent);
 
 static void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
 {
@@ -544,6 +544,9 @@ void weapon_grenade_fire (edict_t *ent, qboolean held)
 
 	timer = ent->client->grenade_time - level.time;
 	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
+	//////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////
 	fire_grenade2 (ent, start, forward, damage, speed, timer, radius, held);
 
 	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
@@ -705,8 +708,8 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
-
-	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	MultiGrenade(ent);
+	//fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
 
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -762,7 +765,7 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 	VectorSet(offset, 8, 8, ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 	fire_rocket (ent, start, forward, damage, 650, damage_radius, radius_damage);
-
+	
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -800,6 +803,12 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	vec3_t	start;
 	vec3_t	offset;
 
+	/*vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;
+	vec3_t	 origin;*/
+
 	if (is_quad)
 		damage *= 4;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
@@ -810,7 +819,9 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 10, effect, hyper);
+	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	//MultiGrenade(ent);
+
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -827,13 +838,57 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 
 void Weapon_Blaster_Fire (edict_t *ent)
 {
+	/*vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;*/
+	vec3_t	 origin;
+
+	/*vec3_t	offset;
+	vec3_t	forward, right;
+	vec3_t	start;
+	int		damage = 120;
+	float	radius;
+
+	radius = damage+40;*/
+
 	int		damage;
+
+	/*grenade1[0] = 2;
+	grenade1[1] = 2;
+	grenade1[2] = 4;
+
+	grenade2[0] = 2;
+	grenade2[1] = -2;
+	grenade2[2] = 4;
+
+	grenade3[0] = -2;
+	grenade3[1] = 2;
+	grenade3[2] = 4;
+
+	grenade4[0] = -2;
+	grenade4[1] = -2;
+	grenade4[2] = 4;*/
+
+	/*VectorSet(offset, 8, 8, ent->viewheight-8);
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);*/
+
+	/*VectorScale (forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;*/
 
 	if (deathmatch->value)
 		damage = 15;
 	else
 		damage = 10;
 	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER);
+	/*fire_grenade (ent, start, grenade1, damage, 200, 2.5, radius);
+	fire_grenade (ent, start, grenade2, damage, 200, 2.5, radius);
+	fire_grenade (ent, start, grenade3, damage, 200, 2.5, radius);
+	fire_grenade (ent, start, grenade4, damage, 200, 2.5, radius);
+	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	fire_grenade (ent, start, forward, damage, 400, 2.5, radius);*/
+
 	ent->client->ps.gunframe++;
 }
 
@@ -848,10 +903,54 @@ void Weapon_Blaster (edict_t *ent)
 
 void Weapon_HyperBlaster_Fire (edict_t *ent)
 {
+	vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;
+	vec3_t	 origin;
+
+	vec3_t	offset;
+	vec3_t	forward, right;
+	vec3_t	start;
+
 	float	rotation;
+
+	//vec3_t	offset;
+	int		effect;
+	//int		damage;
+	int		damage = 120;
+	float	radius;
+
+	radius = damage + 40;
+
+	/*float	rotation;
+
 	vec3_t	offset;
 	int		effect;
-	int		damage;
+	int		damage;*/
+
+	grenade1[0] = 2;
+	grenade1[1] = 2;
+	grenade1[2] = 4;
+
+	grenade2[0] = 2;
+	grenade2[1] = -2;
+	grenade2[2] = 4;
+
+	grenade3[0] = -2;
+	grenade3[1] = 2;
+	grenade3[2] = 4;
+
+	grenade4[0] = -2;
+	grenade4[1] = -2;
+	grenade4[2] = 4;
+
+	VectorSet(offset, 8, 8, ent->viewheight-8);
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+
+	VectorScale (forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
 
 	ent->client->weapon_sound = gi.soundindex("weapons/hyprbl1a.wav");
 
@@ -886,6 +985,13 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 			else
 				damage = 20;
 			Blaster_Fire (ent, offset, damage, true, effect);
+			fire_grenade (ent, start, grenade1, damage, 200, 2.5, radius);
+			fire_grenade (ent, start, grenade2, damage, 200, 2.5, radius);
+			fire_grenade (ent, start, grenade3, damage, 200, 2.5, radius);
+			fire_grenade (ent, start, grenade4, damage, 200, 2.5, radius);
+			fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+			fire_grenade (ent, start, forward, damage, 400, 2.5, radius);
+			
 			if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 				ent->client->pers.inventory[ent->client->ammo_index]--;
 

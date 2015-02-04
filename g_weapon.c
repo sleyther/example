@@ -376,6 +376,62 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 fire_grenade
 =================
 */
+///////////////////////////////
+/*static void Cluster_Explode (edict_t *ent)
+
+{
+	vec3_t		origin;
+	int mod = 1;
+
+	//Sean added these 4 vectors
+
+	vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;
+
+	if (ent->owner->client)
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+	//FIXME: if we are onground then raise our Z just a bit since we are a point?
+	T_RadiusDamage(ent, ent->owner, ent->dmg, ent->enemy, ent->dmg_radius, mod);
+
+	VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
+	gi.WriteByte (svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION_WATER);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION);
+	}
+
+	gi.WritePosition (origin);
+	gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+	// SumFuka did this bit : give grenades up/outwards velocities
+	VectorSet(grenade1,20,20,40);
+	VectorSet(grenade2,20,-20,40);
+	VectorSet(grenade3,-20,20,40);
+	VectorSet(grenade4,-20,-20,40);
+
+	// Sean : explode the four grenades outwards
+	fire_grenade(ent, origin, grenade1, 120, 2, 1.0, 120);
+	fire_grenade(ent, origin, grenade2, 120, 2, 1.0, 120);
+	fire_grenade(ent, origin, grenade3, 120, 2, 1.0, 120);
+	fire_grenade(ent, origin, grenade4, 120, 2, 1.0, 120);
+
+
+	G_FreeEdict (ent);
+}*/
+//////////////////////////////
 static void Grenade_Explode (edict_t *ent)
 {
 	vec3_t		origin;
@@ -432,7 +488,107 @@ static void Grenade_Explode (edict_t *ent)
 
 	G_FreeEdict (ent);
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void Cluster_Explode (edict_t *ent)
 
+{
+	vec3_t		origin;
+	int mod = 1;
+
+	//Sean added these 4 vectors
+
+
+	if (ent->owner->client)
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+	//FIXME: if we are onground then raise our Z just a bit since we are a point?
+	T_RadiusDamage(ent, ent->owner, ent->dmg, ent->enemy, ent->dmg_radius, mod);
+
+	VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
+	gi.WriteByte (svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION_WATER);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION);
+	}
+
+	gi.WritePosition (origin);
+	gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+
+	G_FreeEdict (ent);
+}
+//////////////////////////////////////
+void MultiGrenade (edict_t *ent)
+{
+	int p = 1;
+
+	vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;
+	vec3_t	 origin;
+	
+
+	while( p == 1)
+	{
+		if (ent->client)
+			PlayerNoise(ent, ent->s.origin, PNOISE_IMPACT);
+		origin[0]+= 10;
+		origin[1]+= 5;
+		origin[2]+= 5;
+
+		VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
+		/*ent->s.origin[0]+= 5;
+		ent->s.origin[1]+= 5;
+		ent->s.origin[2]+= 5;*/
+
+		gi.WriteByte (svc_temp_entity);
+		if (ent->waterlevel)
+		{
+			if (ent->groundentity)
+				gi.WriteByte (TE_GRENADE_EXPLOSION_WATER);
+			else
+				gi.WriteByte (TE_ROCKET_EXPLOSION_WATER);
+		}
+		else
+		{
+			if (ent->groundentity)
+				gi.WriteByte (TE_GRENADE_EXPLOSION);
+			else
+				gi.WriteByte (TE_ROCKET_EXPLOSION);
+		}
+
+		gi.WritePosition (origin);
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+	// SumFuka did this bit : give grenades up/outwards velocities
+		VectorSet(grenade1,20,20,40);
+		VectorSet(grenade2,20,-20,40);
+		VectorSet(grenade3,-20,20,40);
+		VectorSet(grenade4,-20,-20,40);
+
+	// Sean : explode the four grenades outwards
+		fire_grenade(ent, origin, grenade1, 120, 4, 1.0, 120);
+		fire_grenade(ent, origin, grenade2, 120, 3, 1.0, 120);
+		fire_grenade(ent, origin, grenade3, 120, 2, 1.0, 120);
+		fire_grenade(ent, origin, grenade4, 120, 1, 1.0, 120);
+
+		p=0;
+
+		G_FreeEdict (ent);
+	}
+}
+//////////////////////////////////////
 static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
@@ -489,10 +645,15 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
+	//grenade->think = Grenade_Explode;
+	////////////////////////////
 	grenade->think = Grenade_Explode;
+	///////////////////////////
+
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "grenade";
+
 
 	gi.linkentity (grenade);
 }
