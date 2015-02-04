@@ -489,7 +489,7 @@ static void Grenade_Explode (edict_t *ent)
 	G_FreeEdict (ent);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static void Cluster_Explode (edict_t *ent)
+/*static void Cluster_Explode (edict_t *ent)
 
 {
 	vec3_t		origin;
@@ -550,7 +550,7 @@ void MultiGrenade (edict_t *ent)
 		VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
 		/*ent->s.origin[0]+= 5;
 		ent->s.origin[1]+= 5;
-		ent->s.origin[2]+= 5;*/
+		ent->s.origin[2]+= 5;
 
 		gi.WriteByte (svc_temp_entity);
 		if (ent->waterlevel)
@@ -587,7 +587,7 @@ void MultiGrenade (edict_t *ent)
 
 		G_FreeEdict (ent);
 	}
-}
+}*/
 //////////////////////////////////////
 static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
@@ -645,10 +645,7 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
-	//grenade->think = Grenade_Explode;
-	////////////////////////////
 	grenade->think = Grenade_Explode;
-	///////////////////////////
 
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
